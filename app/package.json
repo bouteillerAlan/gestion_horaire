@@ -40,9 +40,9 @@
     "typescript": "3.6.4"
   },
   "scripts": {
-    "start": "next start",
+    "dev": "next",
     "build": "next build",
-    "dev": "NODE_ENV=development node server.js",
+    "start": "next start",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
