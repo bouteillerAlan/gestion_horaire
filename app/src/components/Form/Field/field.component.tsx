@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import {registerLocale} from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
-import {msToHMS, hMSToMs} from '../../../../config/utils';
+import {msToHMS, hMSToMs} from '../../../config/utils';
 import './field.component.scss';
 
 // import DraftEditor from '../DraftEditor/draft-editor.component';
