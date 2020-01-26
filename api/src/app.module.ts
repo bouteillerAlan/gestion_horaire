@@ -1,17 +1,23 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {ConfigModule} from './config/config.module';
 import {ConfigService} from './config/config.service';
 
 @Module({
   imports: [
-    MongooseModule.forRootAsync({
+    TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (env: ConfigService) => ({
-        uri: `mongodb://${env.get('db_user')}:${env.get('db_pass')}@${env.get('db_uri')}:${env.get('db_port')}/${env.get('db_name')}`,
-        useNewUrlParser: true,
+        type: 'mysql' as 'mysql',
+        host: env.get('db_uri'),
+        port: Number(env.get('db_port')),
+        username: env.get('db_user'),
+        password: env.get('db_pass'),
+        database: env.get('db_name'),
+        entities: [],
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
