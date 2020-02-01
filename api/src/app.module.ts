@@ -8,6 +8,8 @@ import {Customers} from './customers/customers.entity';
 import {Removal} from './removal/removal.entity';
 import {Adding} from './adding/adding.entity';
 import {CustomersModule} from './customers/customers.module';
+import {AddingModule} from './adding/adding.module';
+import {RemovalModule} from './removal/removal.module';
 
 @Module({
   imports: [
@@ -25,7 +27,9 @@ import {CustomersModule} from './customers/customers.module';
       }),
       inject: [ConfigService],
     }),
-    CustomersModule
+    CustomersModule,
+    AddingModule,
+    RemovalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
