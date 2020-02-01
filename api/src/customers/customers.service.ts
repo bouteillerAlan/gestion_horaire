@@ -16,6 +16,14 @@ export class CustomersService {
     return this.customersRepository.find();
   }
 
+  async findOne(id: number): Promise<Customers[]> {
+    const testId: any[] = await this.customersRepository.findByIds([id]);
+    if (testId.length === 0) {
+      throw new BadRequestException('Cet id n\'existe pas');
+    }
+    return testId;
+  }
+
   async insert(data: CustomersDto): Promise<any> {
     return this.customersRepository.insert(data);
   }

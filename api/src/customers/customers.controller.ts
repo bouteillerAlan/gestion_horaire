@@ -12,6 +12,11 @@ export class CustomersController {
     return this.customersService.findAll();
   }
 
+  @Get('/:id')
+  async getOne(@Param() id: number) {
+    return this.customersService.findOne(id);
+  }
+
   @Post()
   async insert(@Body() data: CustomersDto) {
     return this.customersService.insert(data);
