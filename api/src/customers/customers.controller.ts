@@ -13,7 +13,7 @@ export class CustomersController {
   }
 
   @Get('/:id')
-  async getOne(@Param() id: number) {
+  async getOne(@Param('id') id: number) {
     return this.customersService.findOne(id);
   }
 

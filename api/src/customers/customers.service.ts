@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+import {createQueryBuilder, Repository} from 'typeorm';
 import {Customers} from './customers.entity';
 import {CustomersDto} from './customer.dto';
 import {CustomersEditDto} from './customer.edit.dto';
@@ -12,16 +12,23 @@ export class CustomersService {
     private readonly customersRepository: Repository<Customers>,
   ) {}
 
-  async findAll(): Promise<Customers[]> {
-    return this.customersRepository.find();
+  async findAll(): Promise<any[]> {
+    return createQueryBuilder('customers', 'customers')
+      .leftJoinAndSelect('adding', 'adding', 'adding.idUser = customers.id')
+      .leftJoinAndSelect('removal', 'removal', 'removal.idUser = customers.id')
+      .execute();
   }
 
-  async findOne(id: number): Promise<Customers[]> {
+  async findOne(id: number): Promise<any> {
     const testId: any[] = await this.customersRepository.findByIds([id]);
     if (testId.length === 0) {
       throw new BadRequestException('Cet id n\'existe pas');
     }
-    return testId;
+    return createQueryBuilder('customers', 'customers')
+      .where('customers.id = :id', {id})
+      .leftJoinAndSelect('adding', 'adding', 'adding.idUser = customers.id')
+      .leftJoinAndSelect('removal', 'removal', 'removal.idUser = customers.id')
+      .execute();
   }
 
   async insert(data: CustomersDto): Promise<any> {
