@@ -1,0 +1,16 @@
+@import 'themes.scss';
+
+.header {
+  padding-top: 25px;
+}
+
+.header-avatar {
+  display: flex;
+  button {
+    margin-right: 20px;
+  }
+  p {
+    width: fit-content;
+    margin-left: 20px;
+  }
+}
