@@ -149,13 +149,13 @@ const Home = (props: any) => {
                     )} />
             <Column title="Nom" key="action"
                     render={record => (
-                      // <Link href='/edit/:id' as={`/edit/${record.id}`}>
-                      //   <a>
-                      //     <Tooltip placement="right" title="Modifier">
-                            <EditableCell data={record.name}/>
-                          // </Tooltip>
-                      //   </a>
-                      // </Link>
+                      <Link href='/edit/:id' as={`/edit/${record.id}`}>
+                        <a>
+                          <Tooltip placement="right" title="Modifier">
+                            {record.name}
+                          </Tooltip>
+                        </a>
+                      </Link>
                     )}/>
             <Column title="Description" key="description"
                     render={record => (
