@@ -8,6 +8,6 @@ export class Customers {
   @Column({ length: 500 })
   name: string;
 
-  @Column('text')
+  @Column('text', {nullable: true})
   description: string;
 }
