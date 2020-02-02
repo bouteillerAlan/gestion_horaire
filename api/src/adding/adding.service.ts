@@ -16,6 +16,14 @@ export class AddingService {
     return this.addingRepository.find();
   }
 
+  async findOne(id: number): Promise<Adding[]> {
+    const testId: any[] = await this.addingRepository.findByIds([id]);
+    if (testId.length === 0) {
+      throw new BadRequestException('Cet id n\'existe pas');
+    }
+    return testId;
+  }
+
   async insert(data: AddingDto): Promise<any> {
     return this.addingRepository.insert(data);
   }

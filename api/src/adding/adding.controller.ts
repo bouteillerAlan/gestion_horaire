@@ -12,6 +12,11 @@ export class AddingController {
     return this.addingService.findAll();
   }
 
+  @Get(':id')
+  async getOne(@Param('id') id: number) {
+    return this.addingService.findOne(id);
+  }
+
   @Post()
   async insert(@Body() data: AddingDto) {
     return this.addingService.insert(data);

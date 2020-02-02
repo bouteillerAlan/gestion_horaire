@@ -4,6 +4,7 @@ import {Repository} from 'typeorm';
 import {Removal} from './removal.entity';
 import {RemovalDto} from './removal.dto';
 import {RemovalEditDto} from './removal.edit.dto';
+import {Adding} from '../adding/adding.entity';
 
 @Injectable()
 export class RemovalService {
@@ -14,6 +15,14 @@ export class RemovalService {
 
   async findAll(): Promise<Removal[]> {
     return this.removalRepository.find();
+  }
+
+  async findOne(id: number): Promise<Adding[]> {
+    const testId: any[] = await this.removalRepository.findByIds([id]);
+    if (testId.length === 0) {
+      throw new BadRequestException('Cet id n\'existe pas');
+    }
+    return testId;
   }
 
   async insert(data: RemovalDto): Promise<any> {

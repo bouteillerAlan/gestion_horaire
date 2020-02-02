@@ -12,6 +12,11 @@ export class RemovalController {
     return this.removalService.findAll();
   }
 
+  @Get(':id')
+  async getOne(@Param('id') id: number) {
+    return this.removalService.findOne(id);
+  }
+
   @Post()
   async insert(@Body() data: RemovalDto) {
     return this.removalService.insert(data);
