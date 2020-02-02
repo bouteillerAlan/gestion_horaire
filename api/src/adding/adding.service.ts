@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+import {createQueryBuilder, Repository} from 'typeorm';
 import {Adding} from './adding.entity';
 import {AddingDto} from './adding.dto';
 import {AddingEditDto} from './adding.edit.dto';
@@ -22,6 +22,18 @@ export class AddingService {
       throw new BadRequestException('Cet id n\'existe pas');
     }
     return testId;
+  }
+
+  async findMonth() {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const date = new Date(`${currentYear}-${currentMonth+1}-10`).toISOString().slice(0, 10);
+    return createQueryBuilder(Adding, 'adding')
+      .select('SUM(adding.sum) as sum')
+      .where('adding.date < :date', {date})
+      .andWhere('adding.date > :date - INTERVAL 1 month', {date})
+      .groupBy('adding.sum')
+      .execute();
   }
 
   async insert(data: AddingDto): Promise<any> {

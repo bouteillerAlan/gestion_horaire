@@ -12,6 +12,11 @@ export class RemovalController {
     return this.removalService.findAll();
   }
 
+  @Get('month')
+  async getMonth() {
+    return this.removalService.findMonth();
+  }
+
   @Get(':id')
   async getOne(@Param('id') id: number) {
     return this.removalService.findOne(id);

@@ -12,6 +12,11 @@ export class AddingController {
     return this.addingService.findAll();
   }
 
+  @Get('month')
+  async getMonth() {
+    return this.addingService.findMonth();
+  }
+
   @Get(':id')
   async getOne(@Param('id') id: number) {
     return this.addingService.findOne(id);
