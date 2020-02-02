@@ -14,7 +14,6 @@ export class CustomersController {
 
   @Get('/:id/:join')
   async getOne(@Param() param: {id: number, join: string}) {
-    console.log(param.join);
     return this.customersService.findOne(param.id, param.join);
   }
 

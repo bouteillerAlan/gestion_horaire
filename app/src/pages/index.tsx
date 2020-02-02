@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import '../style/scss/app.scss';
 import fetch from 'isomorphic-unfetch';
-import {DatePicker, Button, Input, Select, Row, Col, Table, Tooltip, Tag, Icon, Badge} from 'antd';
+import {DatePicker, Button, Input, Select, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm} from 'antd';
 import '../theme/index.less';
 import Link from 'next/link';
 
@@ -93,6 +93,18 @@ const Home = (props: any) => {
       })
   }
 
+  /**
+   * handle the delete button
+   */
+  function handleDelete(id: number) {
+    fetch(`http://127.0.0.1:3001/customers/${id}`, {
+      method: 'DELETE'
+    }).then((resp: any) => resp.json())
+      .then((res: any) => {
+        setCustomers(customers.filter((obj: any) => {return obj.id !== id}))
+      })
+  }
+
   return (
     <section className="container header">
       <Row gutter={[8, 8]}>
@@ -169,6 +181,14 @@ const Home = (props: any) => {
             <Column title="Heure restante" key="rest"
                     render={record => (
                       getRest(record.id) >= 0 ? <Badge status="success" text={getRest(record.id)}/> : <Badge status="error" text={getRest(record.id)}/>
+                    )}/>
+            <Column title="" key="deleteRow"
+                    render={record => (
+                      <Popconfirm title="Voulez vous vraiment supprimer cette ligne ?" onConfirm={() => handleDelete(record.id)}>
+                        <Tooltip placement="right" title="Supprimer">
+                          <Icon type="delete"/>
+                        </Tooltip>
+                      </Popconfirm>
                     )}/>
           </Table>
         </Col>

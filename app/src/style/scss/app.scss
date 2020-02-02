@@ -14,3 +14,10 @@
     margin-left: 20px;
   }
 }
+
+.anticon-delete {
+  color: red !important;
+  &:hover {
+    cursor: pointer;
+  }
+}
