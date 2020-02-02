@@ -12,9 +12,10 @@ export class CustomersController {
     return this.customersService.findAll();
   }
 
-  @Get('/:id')
-  async getOne(@Param('id') id: number) {
-    return this.customersService.findOne(id);
+  @Get('/:id/:join')
+  async getOne(@Param() param: {id: number, join: string}) {
+    console.log(param.join);
+    return this.customersService.findOne(param.id, param.join);
   }
 
   @Post()

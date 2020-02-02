@@ -13,16 +13,16 @@ export class CustomersService {
   ) {}
 
   async findAll(): Promise<any[]> {
-    return createQueryBuilder('customers', 'customers')
-      .leftJoinAndSelect('adding', 'adding', 'adding.idUser = customers.id')
-      .leftJoinAndSelect('removal', 'removal', 'removal.idUser = customers.id')
-      .execute();
+    return this.customersRepository.find();
   }
 
-  async findOne(id: number): Promise<any> {
+  async findOne(id: number, join: string): Promise<any> {
     const testId: any[] = await this.customersRepository.findByIds([id]);
     if (testId.length === 0) {
       throw new BadRequestException('Cet id n\'existe pas');
+    }
+    if (join === 'false') {
+      return testId;
     }
     return createQueryBuilder('customers', 'customers')
       .where('customers.id = :id', {id})

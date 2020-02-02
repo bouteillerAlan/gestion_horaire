@@ -17,6 +17,7 @@ const Home = (props: any) => {
   const [description, setDescription] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState<loadInt>({status: false, type: 'active'});
+  console.log(props);
 
   const client = props.customer[0];
   const { TextArea } = Input;
@@ -89,7 +90,7 @@ const Home = (props: any) => {
 };
 
 Home.getInitialProps = async function(context: any) {
-  return fetch(`${API_URL}/customers/${context.query.id}`)
+  return fetch(`${API_URL}/customers/${context.query.id}/false`)
     .then((resp: any) => resp.json())
     .then((res: any) => {
       return {customer: res};
