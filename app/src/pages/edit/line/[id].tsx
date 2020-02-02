@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import '../../style/scss/app.scss';
+import '../../../style/scss/app.scss';
 import fetch from 'isomorphic-unfetch';
-import {Button, Input, Row, Col, Avatar, Badge, Icon, Alert, Progress} from 'antd';
-import '../../theme/index.less';
+import {Button, Input, Row, Col, Avatar, Badge, Icon, Alert, Progress, DatePicker } from 'antd';
+import '../../../theme/index.less';
 import Router from 'next/router';
 
 const API_URL = 'http://127.0.0.1:3001';
@@ -13,34 +13,33 @@ interface loadInt {
 }
 
 const Home = (props: any) => {
-  const [name, setName] = useState();
-  const [description, setDescription] = useState();
+  const [date, setDate] = useState();
+  const [sum, setSum] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState<loadInt>({status: false, type: 'active'});
   console.log(props);
+  const type: string = props.type;
+  const line: any = props.row[0];
 
-  const client = props.customer[0];
-  const { TextArea } = Input;
-
-  function handleForm(e: any) {
+  function handleSum(e: any) {
     const target = e.target;
     setError('');
-    if (target.name === 'name') {
-      setName(target.value);
-    } else if (target.name === 'description') {
-      setDescription(target.value)
-    }
+    setSum(target.value)
+  }
+
+  function handleDate(date: any, dateString: any) {
+    setDate(date);
   }
 
   function sendData() {
-    if (!name && !description) {
+    if (!date && !sum) {
       setError('Vous n\'avez apporté aucune modification')
     } else {
       setLoading({status: true, type: 'active'});
-      fetch(`${API_URL}/customers/${client.id}`, {
+      fetch(`${API_URL}/${type}/${line.id}`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name, description})
+        body: JSON.stringify({date, sum})
       }).then((res: any) => {
         console.log(res);
         if (res.status === 200) {
@@ -61,21 +60,16 @@ const Home = (props: any) => {
             <Button type="primary" size="small" onClick={() => Router.push('/')}>
               <Icon type="left" />
             </Button>
-            <Badge count={client.id}>
-              <Avatar shape="square" size="small">
-                {name ? name.slice(0, 1)[0].toUpperCase() : client.name.slice(0, 1)[0].toUpperCase()}
-              </Avatar>
-            </Badge>
-            <p>Modification</p>
+            <p>{type} line modification</p>
           </div>
         </Col>
-        <Col span={24}>
-          <Input allowClear placeholder={client.name} value={name} name="name" onChange={(e) => handleForm(e)}/>
+        <Col sm={6} xs={12}>
+          <Input allowClear placeholder={line.sum} value={sum} name="sum" onChange={(e) => handleSum(e)}/>
         </Col>
-        <Col span={24}>
-          <TextArea allowClear placeholder={client.description} value={description} name="description" onChange={(e) => handleForm(e)}/>
+        <Col sm={6} xs={12}>
+          <DatePicker placeholder={line.date.replace(/(T)|(\.000Z)/g, ' ')} onChange={handleDate}/>
         </Col>
-        <Col span={24}>
+        <Col sm={6} xs={12}>
           <Button type="primary" block onClick={() => sendData()}>
             Envoyer
           </Button>
@@ -90,10 +84,12 @@ const Home = (props: any) => {
 };
 
 Home.getInitialProps = async function(context: any) {
-  return fetch(`${API_URL}/customers/${context.query.id}/false`)
+  const table = context.query.id.slice(0, 1) === 'a' ? 'adding' : 'removal';
+  const id = context.query.id.slice(1);
+  return fetch(`${API_URL}/${table}/${id}`)
     .then((resp: any) => resp.json())
     .then((res: any) => {
-      return {customer: res};
+      return {type: table, row: res};
     })
 };
 

@@ -1,19 +1,16 @@
 import React, {useState} from 'react';
 import '../style/scss/app.scss';
 import fetch from 'isomorphic-unfetch';
-import {DatePicker, Button, Input, Select, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm, Form} from 'antd';
+import {Button, Select, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm} from 'antd';
 import '../theme/index.less';
 import Link from 'next/link';
-import EditableCell from '../components/editable-cell';
 
 const Home = (props: any) => {
-  console.log(props);
   const [customers, setCustomers] = useState(props.customers);
   const [adding, setAdding] = useState(props.adding);
   const [removal, setRemoval] = useState(props.removal);
 
   const { Column } = Table;
-  const { Option } = Select;
 
   /**
    * calc the sum of the given hours for one client
@@ -52,32 +49,18 @@ const Home = (props: any) => {
     adding.forEach((add: any) => {
       if (add.idUser === id) {
         add['type'] = 'add';
+        add['key'] = `a${add.id}`;
         data.push(add);
       }
     });
     removal.forEach((rem: any) => {
       if (rem.idUser === id) {
         rem['type'] = 'rem';
+        rem['key'] = `r${rem.id}`;
         data.push(rem);
       }
     });
     return data;
-  }
-
-  /**
-   * the sub row for each client
-   */
-  function expandedRowRender(record: any) {
-    const datas = getInfos(record.id);
-    return (
-      <Table dataSource={datas} pagination={false} rowKey='date'>
-        <Column title="Date" key="date" render={record => (record.date.replace(/(T)|(\.000Z)/g, ' '))}/>
-        <Column title="Nb. heures" key="temps" dataIndex="sum"/>
-        <Column title="Type" key="type" render={record => (
-          record.type === 'rem' ? <Icon type="caret-down" style={{color: 'red'}}/> : <Icon type="caret-up" style={{color: 'green'}}/>
-        )}/>
-      </Table>
-    );
   }
 
   /**
@@ -95,6 +78,27 @@ const Home = (props: any) => {
   }
 
   /**
+   * handle the sub adding button
+   */
+  function handleSubAdd(type: string, idUser: number) {
+    const table: string = type === 'rem' ? 'removal' : 'adding';
+    const sqlDate: any = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const data: any = {date: sqlDate, sum: 1, idUser};
+    console.log(data);
+    fetch(`http://127.0.0.1:3001/${table}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    }).then((resp: any) => resp.json())
+      .then((res: any) => {
+        data['id'] =  res.identifiers[0].id;
+        type === 'rem' ?
+          setRemoval([...removal, data]) :
+          setAdding([...adding, data]);
+      })
+  }
+
+  /**
    * handle the delete button
    */
   function handleDelete(id: number) {
@@ -106,32 +110,64 @@ const Home = (props: any) => {
       })
   }
 
+  /**
+   * handle the sub delete button
+   */
+  function handleSubDelete(id: number, type: string) {
+    const table: string = type === 'rem' ? 'removal' : 'adding';
+    fetch(`http://127.0.0.1:3001/${table}/${id}`, {
+      method: 'DELETE'
+    }).then((resp: any) => resp.json())
+      .then((res: any) => {
+        type === 'rem' ?
+          setRemoval(removal.filter((obj: any) => {return obj.id !== id})) :
+          setAdding(adding.filter((obj: any) => {return obj.id !== id}));
+      })
+  }
+
+  /**
+   * the sub row for each client
+   */
+  function expandedRowRender(record: any) {
+    const datas: any = getInfos(record.id).sort((a: any, b: any) => {return Date.parse(b.date)-Date.parse(a.date);});
+    console.log(datas);
+    return (
+      <div>
+        <div className='btn-group'>
+          <Button onClick={() => handleSubAdd('add', record.id)}>Ajouter des heures</Button> <Button onClick={() => handleSubAdd('rem', record.id)}>Ajouter une prestation</Button>
+        </div>
+        <Table dataSource={datas} pagination={false} rowKey='key'>
+          <Column title="Date" key="date" render={record => (record.date.replace(/(T)|(\.000Z)/g, ' '))}/>
+          <Column title="Nb. heures" key="temps" dataIndex="sum"/>
+          <Column title="Type" key="type" render={record => (
+            record.type === 'rem' ? <Icon type="caret-down" style={{color: 'red'}}/> : <Icon type="caret-up" style={{color: 'green'}}/>
+          )}/>
+          <Column title="" key="deleteRow"
+                  render={record => (
+                    <Popconfirm title="Voulez vous vraiment supprimer cette ligne ?" onConfirm={() => handleSubDelete(record.id, record.type)}>
+                      <Tooltip placement="right" title="Supprimer">
+                        <Icon type="delete"/>
+                      </Tooltip>
+                    </Popconfirm>
+                  )}/>
+          <Column title="" key="editRow"
+                  render={record => (
+                    <Link href='/edit/line/:id' as={`/edit/line/${record.key}`}>
+                      <a>
+                        <Tooltip placement="right" title="Modifier">
+                          <Icon type="edit" />
+                        </Tooltip>
+                      </a>
+                    </Link>
+                  )}/>
+        </Table>
+      </div>
+    );
+  }
+
   return (
     <section className="container header">
       <Row gutter={[8, 8]}>
-        {/*<Col span={24}>*/}
-        {/*  <Select showSearch defaultValue={clients.length > 0 && clients![0].id} optionFilterProp="children" style={{width: '100%'}} filterOption={(input: string, option: any) =>*/}
-        {/*    option.props.children!.toLowerCase().indexOf(input.toLowerCase()) >= 0*/}
-        {/*  }>*/}
-        {/*    {clients.map((client: any) => (*/}
-        {/*      <Option key={client.id} value={client.id}>{client.name}</Option>*/}
-        {/*    ))}*/}
-        {/*  </Select>*/}
-        {/*</Col>*/}
-        {/*<Col span={24}>*/}
-        {/*  <Input allowClear placeholder="Ajouter des heures"/>*/}
-        {/*</Col>*/}
-        {/*<Col span={24}>*/}
-        {/*  <Input allowClear placeholder="Enlever des heures"/>*/}
-        {/*</Col>*/}
-        {/*<Col span={24}>*/}
-        {/*  <DatePicker/>*/}
-        {/*</Col>*/}
-        {/*<Col span={24}>*/}
-        {/*  <Button type="primary" block>*/}
-        {/*    Envoyer*/}
-        {/*  </Button>*/}
-        {/*</Col>*/}
         <Col span={24}>
           <Button onClick={() => handleAdd()}>
             Ajouter un client
@@ -149,7 +185,7 @@ const Home = (props: any) => {
                     )} />
             <Column title="Nom" key="action"
                     render={record => (
-                      <Link href='/edit/:id' as={`/edit/${record.id}`}>
+                      <Link href='/edit/customer/:id' as={`/edit/customer/${record.id}`}>
                         <a>
                           <Tooltip placement="right" title="Modifier">
                             {record.name}
@@ -162,7 +198,7 @@ const Home = (props: any) => {
                       <span>
                         {!!record.description ?
                           record.description :
-                          <Link href='/edit/:id' as={`/edit/${record.id}`}>
+                          <Link href='/edit/customer/:id' as={`/edit/customer/${record.id}`}>
                             <a>
                               <Tooltip placement="right" title="Ajouter une description">
                                 <Icon className="edit-icon" type="form" />
