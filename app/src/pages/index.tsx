@@ -68,9 +68,8 @@ const Home = (props: any) => {
    */
   function expandedRowRender(record: any) {
     const datas = getInfos(record.id);
-    console.log(datas);
     return (
-      <Table dataSource={datas} pagination={false} rowKey='id'>
+      <Table dataSource={datas} pagination={false} rowKey='date'>
         <Column title="Date" key="date" render={record => (record.date.replace(/(T)|(\.000Z)/g, ' '))}/>
         <Column title="Nb. heures" key="temps" dataIndex="sum"/>
         <Column title="Type" key="type" render={record => (
