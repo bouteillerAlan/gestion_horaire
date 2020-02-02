@@ -1,0 +1,54 @@
+@import 'themes.scss';
+
+.header {
+  padding-top: 25px;
+}
+
+.data-header {
+  display: flex;
+  align-items: center;
+  .ant-statistic {
+    margin: 15px
+  }
+}
+
+.anticon-fall {
+  color: red !important;
+}
+
+.anticon-minus {
+  color: orange !important;
+}
+
+.anticon-rise {
+  color: green !important;
+}
+
+.header-avatar {
+  display: flex;
+  button {
+    margin-right: 20px;
+  }
+  p {
+    width: fit-content;
+    margin-left: 20px;
+  }
+}
+
+.anticon-delete {
+  color: red !important;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.anticon-edit {
+  color: orange !important;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.btn-group {
+  padding-bottom: 15px;
+}
