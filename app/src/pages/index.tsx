@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import '../style/scss/app.scss';
 import fetch from 'isomorphic-unfetch';
-import {DatePicker, Button, Input, Select, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm} from 'antd';
+import {DatePicker, Button, Input, Select, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm, Form} from 'antd';
 import '../theme/index.less';
 import Link from 'next/link';
+import EditableCell from '../components/editable-cell';
 
 const Home = (props: any) => {
   console.log(props);
@@ -133,11 +134,11 @@ const Home = (props: any) => {
         {/*</Col>*/}
         <Col span={24}>
           <Button onClick={() => handleAdd()}>
-            Ajouter une ligne
+            Ajouter un client
           </Button>
         </Col>
         <Col span={24}>
-          <Table dataSource={customers} rowKey="id" expandedRowRender={(record: any) => expandedRowRender(record)}>
+          <Table dataSource={customers} rowKey="id" expandedRowRender={(record: any) => expandedRowRender(record)} rowClassName={() => "editable-row"}>
             <Column title="Id" dataIndex="id" key="id"
                     render={id => (
                       <span>
@@ -148,13 +149,13 @@ const Home = (props: any) => {
                     )} />
             <Column title="Nom" key="action"
                     render={record => (
-                      <Link href='/edit/:id' as={`/edit/${record.id}`}>
-                        <a>
-                          <Tooltip placement="right" title="Modifier">
-                          {record.name}
-                          </Tooltip>
-                        </a>
-                      </Link>
+                      // <Link href='/edit/:id' as={`/edit/${record.id}`}>
+                      //   <a>
+                      //     <Tooltip placement="right" title="Modifier">
+                            <EditableCell data={record.name}/>
+                          // </Tooltip>
+                      //   </a>
+                      // </Link>
                     )}/>
             <Column title="Description" key="description"
                     render={record => (
