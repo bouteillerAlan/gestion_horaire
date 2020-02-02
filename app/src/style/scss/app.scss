@@ -4,6 +4,26 @@
   padding-top: 25px;
 }
 
+.data-header {
+  display: flex;
+  align-items: center;
+  .ant-statistic {
+    margin: 15px
+  }
+}
+
+.anticon-fall {
+  color: red !important;
+}
+
+.anticon-minus {
+  color: orange !important;
+}
+
+.anticon-rise {
+  color: green !important;
+}
+
 .header-avatar {
   display: flex;
   button {

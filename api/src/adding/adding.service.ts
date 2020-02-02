@@ -28,12 +28,19 @@ export class AddingService {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     const date = new Date(`${currentYear}-${currentMonth+1}-10`).toISOString().slice(0, 10);
-    return createQueryBuilder(Adding, 'adding')
+    const mCurrent = await createQueryBuilder(Adding, 'adding')
       .select('SUM(adding.sum) as sum')
       .where('adding.date < :date', {date})
       .andWhere('adding.date > :date - INTERVAL 1 month', {date})
       .groupBy('adding.sum')
       .execute();
+    const mPrec = await createQueryBuilder(Adding, 'adding')
+      .select('SUM(adding.sum) as sum')
+      .where('adding.date < :date - INTERVAL 1 month', {date})
+      .andWhere('adding.date > :date - INTERVAL 2 month', {date})
+      .groupBy('adding.sum')
+      .execute();
+    return {mCurrent, mPrec};
   }
 
   async insert(data: AddingDto): Promise<any> {
