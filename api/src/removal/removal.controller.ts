@@ -7,7 +7,7 @@ import {RolesGuard} from '../security/roles.guard';
 import {Roles} from '../security/roles.decorator';
 
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles('Admin')
+@Roles('User')
 @Controller('removal')
 export class RemovalController {
   constructor(private readonly removalService: RemovalService) {}

@@ -8,8 +8,8 @@ export class UsersDto {
   readonly name: string;
 
   @IsString()
-  readonly password: string;
+  password: string;
 
   @IsString()
-  readonly role: 'User';
+  role: string = 'User';
 }

@@ -3,6 +3,8 @@ import '../style/scss/app.scss';
 import '../theme/index.less';
 import {Alert, Button, Col, Input, Progress, Row} from 'antd';
 import fetch from 'isomorphic-unfetch';
+import cookie from 'js-cookie';
+import {useRouter} from 'next/router';
 
 const API_URL = 'http://127.0.0.1:3001';
 
@@ -21,6 +23,7 @@ const Login = () => {
     status: false,
     type: 'active',
   });
+  const router = useRouter();
 
   /**
    * handle the login form
@@ -49,7 +52,8 @@ const Login = () => {
       if (res.status === 201) {
         setError(null);
         setLoading({status: true, type: 'success'});
-        localStorage.setItem('jwt', resJson.jwt);
+        cookie.set('jwt', resJson.jwt, {expires: 1});
+        router.push('/');
       } else {
         setLoading({status: true, type: 'exception'});
         setError(resJson.message);

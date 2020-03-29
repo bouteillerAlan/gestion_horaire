@@ -22,27 +22,27 @@ export const slugify = (string: string): string => {
 
   // because some component have link value with possible null value
   if (!string) {
-    return ''
+    return '';
   }
 
   return string.toString().toLowerCase()
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
-    .replace(/^-+/, '') // Trim - from start of text
-    .replace(/-+$/, '') // Trim - from end of text
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
+      .replace(/&/g, '-and-') // Replace & with 'and'
+      .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
 };
 
 export const addToObject = (obj: any, key: string, value: any, index: number) => {
 
   // Create a temp object and index variable
-  let temp: any = {};
+  const temp: any = {};
   let i = 0;
 
   // Loop through the original object
-  for (let prop in obj) {
+  for (const prop in obj) {
     if (obj.hasOwnProperty(prop)) {
 
       // If the indexes match, add the new item
@@ -66,5 +66,5 @@ export const addToObject = (obj: any, key: string, value: any, index: number) =>
 };
 
 export const logout = () => {
-  localStorage.clear()
+  localStorage.clear();
 };

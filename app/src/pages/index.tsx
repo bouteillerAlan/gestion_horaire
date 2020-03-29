@@ -1,20 +1,29 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import '../style/scss/app.scss';
 import '../theme/index.less';
 import fetch from 'isomorphic-unfetch';
 import {Button, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm, Statistic} from 'antd';
 import Link from 'next/link';
+import {checkUser} from '../config/checkUser';
+import nextCookie from 'next-cookies';
+import cookie from 'js-cookie';
+
+const API_URL = process.env.API_URL;
 
 const Home = (props: any) => {
   const [customers, setCustomers] = useState(props.customers);
   const [adding, setAdding] = useState(props.adding);
   const [removal, setRemoval] = useState(props.removal);
   const {Column} = Table;
-  const currentRemovalMonth = props.rMonth.mCurrent.length !== 0 ? props.rMonth.mCurrent[0].sum : 0;
-  const currentAddMonth = props.aMonth.mCurrent.length !== 0 ? props.aMonth.mCurrent[0].sum : 0;
-  const precRemovalMonth = props.rMonth.mPrec.length !== 0 ? props.rMonth.mPrec[0].sum : 0;
-  const precAddMonth = props.aMonth.mPrec.length !== 0 ? props.aMonth.mPrec[0].sum : 0;
-  console.log(props);
+  const currentRemovalMonth = props.rMonth.mCurrent && props.rMonth.mCurrent.length !== 0 ? props.rMonth.mCurrent[0].sum : 0;
+  const currentAddMonth = props.aMonth.mCurrent && props.aMonth.mCurrent.length !== 0 ? props.aMonth.mCurrent[0].sum : 0;
+  const precRemovalMonth = props.rMonth.rMonth && props.rMonth.mPrec.length !== 0 ? props.rMonth.mPrec[0].sum : 0;
+  const precAddMonth = props.aMonth.rMonth && props.aMonth.mPrec.length !== 0 ? props.aMonth.mPrec[0].sum : 0;
+  const jwt = cookie.get('jwt');
+
+  useEffect(() => {
+    checkUser();
+  });
 
   /**
    * calc the sum of the given hours for one client
@@ -79,9 +88,9 @@ const Home = (props: any) => {
    * handle the adding button
    */
   function handleAdd() {
-    fetch(`http://127.0.0.1:3001/customers`, {
+    fetch(`${API_URL}/customers`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}`},
       body: JSON.stringify({name: 'nouveau client', description: null}),
     }).then((resp: any) => resp.json())
         .then((res: any) => {
@@ -97,9 +106,9 @@ const Home = (props: any) => {
     const sqlDate: any = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const data: any = {date: sqlDate, sum: 1, idUser};
     console.log(data);
-    fetch(`http://127.0.0.1:3001/${table}`, {
+    fetch(`${API_URL}/${table}`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}`},
       body: JSON.stringify(data),
     }).then((resp: any) => resp.json())
         .then((res: any) => {
@@ -114,8 +123,9 @@ const Home = (props: any) => {
    * handle the delete button
    */
   function handleDelete(id: number) {
-    fetch(`http://127.0.0.1:3001/customers/${id}`, {
+    fetch(`${API_URL}/customers/${id}`, {
       method: 'DELETE',
+      headers: {'Authorization': `Bearer ${jwt}`},
     }).then((resp: any) => resp.json())
         .then((res: any) => {
           setCustomers(customers.filter((obj: any) => {
@@ -129,8 +139,9 @@ const Home = (props: any) => {
    */
   function handleSubDelete(id: number, type: string) {
     const table: string = type === 'rem' ? 'removal' : 'adding';
-    fetch(`http://127.0.0.1:3001/${table}/${id}`, {
+    fetch(`${API_URL}/${table}/${id}`, {
       method: 'DELETE',
+      headers: {'Authorization': `Bearer ${jwt}`},
     }).then((resp: any) => resp.json())
         .then((res: any) => {
         type === 'rem' ?
@@ -262,32 +273,55 @@ const Home = (props: any) => {
   );
 };
 
-Home.getInitialProps = async function() {
+Home.getInitialProps = async function(context: any) {
+  const {jwt} = nextCookie(context);
+  const options = {headers: {'Authorization': `Bearer ${jwt}`}};
+
   const data: any = {};
-  await fetch('http://127.0.0.1:3001/customers')
+  await fetch(`${API_URL}/customers`, options)
       .then((resp: any) => resp.json())
       .then((res: any) => {
-        data['customers'] = res;
+        if (res.statusCode === 200) {
+          data['customers'] = res;
+        } else {
+          data['customers'] = [];
+        }
       });
-  await fetch('http://127.0.0.1:3001/adding')
+  await fetch(`${API_URL}/adding`, options)
       .then((resp: any) => resp.json())
       .then((res: any) => {
-        data['adding'] = res;
+        if (res.statusCode === 201) {
+          data['adding'] = res;
+        } else {
+          data['adding'] = [];
+        }
       });
-  await fetch('http://127.0.0.1:3001/removal')
+  await fetch(`${API_URL}/removal`, options)
       .then((resp: any) => resp.json())
       .then((res: any) => {
-        data['removal'] = res;
+        if (res.statusCode === 201) {
+          data['removal'] = res;
+        } else {
+          data['removal'] = [];
+        }
       });
-  await fetch('http://127.0.0.1:3001/adding/month')
+  await fetch(`${API_URL}/adding/month`, options)
       .then((resp: any) => resp.json())
       .then((res: any) => {
-        data['aMonth'] = res;
+        if (res.statusCode === 201) {
+          data['aMonth'] = res;
+        } else {
+          data['aMonth'] = [];
+        }
       });
-  await fetch('http://127.0.0.1:3001/removal/month')
+  await fetch(`${API_URL}/removal/month`, options)
       .then((resp: any) => resp.json())
       .then((res: any) => {
-        data['rMonth'] = res;
+        if (res.statusCode === 201) {
+          data['rMonth'] = res;
+        } else {
+          data['rMonth'] = [];
+        }
       });
   return data;
 };

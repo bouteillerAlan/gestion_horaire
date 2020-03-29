@@ -1,15 +1,18 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import '../../../style/scss/app.scss';
 import fetch from 'isomorphic-unfetch';
-import {Button, Input, Row, Col, Avatar, Badge, Icon, Alert, Progress, DatePicker } from 'antd';
+import {Button, Input, Row, Col, Avatar, Badge, Icon, Alert, Progress} from 'antd';
 import '../../../theme/index.less';
 import Router from 'next/router';
+import {checkUser} from '../../../config/checkUser';
+import nextCookie from 'next-cookies';
+import cookie from 'js-cookie';
 
-const API_URL = 'http://127.0.0.1:3001';
+const API_URL = process.env.API_URL;
 
 interface loadInt {
   status: boolean;
-  type: "active" | "success" | "exception" | "normal" | undefined;
+  type: 'active' | 'success' | 'exception' | 'normal' | undefined;
 }
 
 const Home = (props: any) => {
@@ -17,10 +20,14 @@ const Home = (props: any) => {
   const [description, setDescription] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState<loadInt>({status: false, type: 'active'});
-  console.log(props);
 
   const client = props.customer[0];
-  const { TextArea } = Input;
+  const {TextArea} = Input;
+  const jwt = cookie.get('jwt');
+
+  useEffect(() => {
+    checkUser();
+  });
 
   function handleForm(e: any) {
     const target = e.target;
@@ -28,19 +35,19 @@ const Home = (props: any) => {
     if (target.name === 'name') {
       setName(target.value);
     } else if (target.name === 'description') {
-      setDescription(target.value)
+      setDescription(target.value);
     }
   }
 
   function sendData() {
     if (!name && !description) {
-      setError('Vous n\'avez apporté aucune modification')
+      setError('Vous n\'avez apporté aucune modification');
     } else {
       setLoading({status: true, type: 'active'});
       fetch(`${API_URL}/customers/${client.id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name, description})
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}`},
+        body: JSON.stringify({name, description}),
       }).then((res: any) => {
         console.log(res);
         if (res.status === 200) {
@@ -86,15 +93,18 @@ const Home = (props: any) => {
         </Col>
       </Row>
     </section>
-  )
+  );
 };
 
 Home.getInitialProps = async function(context: any) {
-  return fetch(`${API_URL}/customers/${context.query.id}/false`)
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      return {customer: res};
-    })
+  const {jwt} = nextCookie(context);
+  const options = {headers: {'Authorization': `Bearer ${jwt}`}};
+
+  return fetch(`${API_URL}/customers/${context.query.id}/false`, options)
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        return {customer: res};
+      });
 };
 
 export default Home;

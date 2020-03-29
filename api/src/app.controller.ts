@@ -24,7 +24,7 @@ export class AppController {
    * @Return {boolean} true or http error
    */
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('Admin')
+  @Roles('User')
   @Get('check/user')
   checkUser(): boolean {
     return true;
