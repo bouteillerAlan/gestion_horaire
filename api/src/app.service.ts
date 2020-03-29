@@ -40,6 +40,6 @@ export class AppService {
     await this.usersRepository.update(user.id, {jwt});
 
     // and finaly return the token
-    return jwt;
+    return {jwt};
   }
 }

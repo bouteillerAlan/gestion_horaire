@@ -27,6 +27,7 @@ const Login = () => {
    * @Param {any} event the dom event
    */
   function handleForm(event: any) {
+    setError(null);
     const value: string = event.target.value;
     const name: string = event.target.name;
     const oldState: any = formData;
@@ -43,15 +44,16 @@ const Login = () => {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({...formData}),
-    }).then((res: any) => {
-      res.json().then((resJson: any) => {
-        if (res.status === 200) {
-          setLoading({status: true, type: 'success'});
-        } else {
-          setLoading({status: true, type: 'exception'});
-          setError(resJson.message);
-        }
-      });
+    }).then( async (res: any) => {
+      const resJson = await res.json();
+      if (res.status === 201) {
+        setError(null);
+        setLoading({status: true, type: 'success'});
+        localStorage.setItem('jwt', resJson.jwt);
+      } else {
+        setLoading({status: true, type: 'exception'});
+        setError(resJson.message);
+      }
     });
   }
 
