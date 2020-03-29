@@ -13,11 +13,21 @@ export class AppController {
    * hello endpoint just for test
    * @Return {string} a quote
    */
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('User')
   @Get('hello')
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  /**
+   * check if the token is a user token
+   * if the response is true is ok
+   * @Return {boolean} true or http error
+   */
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Admin')
+  @Get('check/user')
+  checkUser(): boolean {
+    return true;
   }
 
   /**

@@ -10,10 +10,11 @@ import {Adding} from './adding/adding.entity';
 import {CustomersModule} from './customers/customers.module';
 import {AddingModule} from './adding/adding.module';
 import {RemovalModule} from './removal/removal.module';
-import {Users} from './users.entity';
+import {Users} from './users/users.entity';
 import {PassportModule} from '@nestjs/passport';
 import {JwtModule} from '@nestjs/jwt';
 import {JwtStrategy} from './security/jwt.strategy';
+import {UsersModule} from './users/users.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import {JwtStrategy} from './security/jwt.strategy';
     CustomersModule,
     AddingModule,
     RemovalModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
