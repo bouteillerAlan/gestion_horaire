@@ -40,7 +40,7 @@ const Login = () => {
   function sendData() {
     setLoading({status: true, type: 'active'});
     fetch(`${API_URL}/login`, {
-      method: 'PUT',
+      method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({...formData}),
     }).then((res: any) => {
