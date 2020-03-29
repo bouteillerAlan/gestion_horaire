@@ -1,20 +1,29 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import '../style/scss/app.scss';
+import '../theme/index.less';
 import fetch from 'isomorphic-unfetch';
 import {Button, Row, Col, Table, Tooltip, Tag, Icon, Badge, Popconfirm, Statistic} from 'antd';
-import '../theme/index.less';
 import Link from 'next/link';
+import {checkUser} from '../config/checkUser';
+import nextCookie from 'next-cookies';
+import cookie from 'js-cookie';
+
+const API_URL = process.env.API_URL;
 
 const Home = (props: any) => {
   const [customers, setCustomers] = useState(props.customers);
   const [adding, setAdding] = useState(props.adding);
   const [removal, setRemoval] = useState(props.removal);
-  const { Column } = Table;
-  const currentRemovalMonth = props.rMonth.mCurrent.length !== 0 ? props.rMonth.mCurrent[0].sum : 0;
-  const currentAddMonth = props.aMonth.mCurrent.length !== 0 ? props.aMonth.mCurrent[0].sum : 0;
-  const precRemovalMonth = props.rMonth.mPrec.length !== 0 ? props.rMonth.mPrec[0].sum : 0;
-  const precAddMonth = props.aMonth.mPrec.length !== 0 ? props.aMonth.mPrec[0].sum : 0;
-  console.log(props);
+  const {Column} = Table;
+  const currentRemovalMonth = props.rMonth.mCurrent && props.rMonth.mCurrent.length !== 0 ? props.rMonth.mCurrent[0].sum : 0;
+  const currentAddMonth = props.aMonth.mCurrent && props.aMonth.mCurrent.length !== 0 ? props.aMonth.mCurrent[0].sum : 0;
+  const precRemovalMonth = props.rMonth.rMonth && props.rMonth.mPrec.length !== 0 ? props.rMonth.mPrec[0].sum : 0;
+  const precAddMonth = props.aMonth.rMonth && props.aMonth.mPrec.length !== 0 ? props.aMonth.mPrec[0].sum : 0;
+  const jwt = cookie.get('jwt');
+
+  useEffect(() => {
+    checkUser();
+  });
 
   /**
    * calc the sum of the given hours for one client
@@ -22,9 +31,13 @@ const Home = (props: any) => {
   function getAdd(id: number) {
     const sum: any[] = [0];
     adding.forEach((add: any) => {
-      if (add.idUser === id) {sum.push(add.sum)}
+      if (add.idUser === id) {
+        sum.push(add.sum);
+      }
     });
-    return sum.reduce((t, s) => {return t+s});
+    return sum.reduce((t, s) => {
+      return t+s;
+    });
   }
 
   /**
@@ -33,16 +46,20 @@ const Home = (props: any) => {
   function getRemove(id: number) {
     const sum: any[] = [0];
     removal.forEach((rem: any) => {
-      if (rem.idUser === id) {sum.push(rem.sum)}
+      if (rem.idUser === id) {
+        sum.push(rem.sum);
+      }
     });
-    return sum.reduce((t, s) => {return t+s});
+    return sum.reduce((t, s) => {
+      return t+s;
+    });
   }
 
   /**
    * calc the sum of the rest hours for one client
    */
   function getRest(id: number) {
-    return getAdd(id) - getRemove(id)
+    return getAdd(id) - getRemove(id);
   }
 
   /**
@@ -71,14 +88,14 @@ const Home = (props: any) => {
    * handle the adding button
    */
   function handleAdd() {
-    fetch(`http://127.0.0.1:3001/customers`, {
+    fetch(`${API_URL}/customers`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: 'nouveau client', description: null})
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}`},
+      body: JSON.stringify({name: 'nouveau client', description: null}),
     }).then((resp: any) => resp.json())
-      .then((res: any) => {
-        setCustomers([...customers, {id: res.identifiers[0].id, name: 'nouveau client', description: null}])
-      })
+        .then((res: any) => {
+          setCustomers([...customers, {id: res.identifiers[0].id, name: 'nouveau client', description: null}]);
+        });
   }
 
   /**
@@ -89,29 +106,32 @@ const Home = (props: any) => {
     const sqlDate: any = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const data: any = {date: sqlDate, sum: 1, idUser};
     console.log(data);
-    fetch(`http://127.0.0.1:3001/${table}`, {
+    fetch(`${API_URL}/${table}`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(data)
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}`},
+      body: JSON.stringify(data),
     }).then((resp: any) => resp.json())
-      .then((res: any) => {
-        data['id'] =  res.identifiers[0].id;
+        .then((res: any) => {
+          data['id'] = res.identifiers[0].id;
         type === 'rem' ?
           setRemoval([...removal, data]) :
           setAdding([...adding, data]);
-      })
+        });
   }
 
   /**
    * handle the delete button
    */
   function handleDelete(id: number) {
-    fetch(`http://127.0.0.1:3001/customers/${id}`, {
-      method: 'DELETE'
+    fetch(`${API_URL}/customers/${id}`, {
+      method: 'DELETE',
+      headers: {'Authorization': `Bearer ${jwt}`},
     }).then((resp: any) => resp.json())
-      .then((res: any) => {
-        setCustomers(customers.filter((obj: any) => {return obj.id !== id}))
-      })
+        .then((res: any) => {
+          setCustomers(customers.filter((obj: any) => {
+            return obj.id !== id;
+          }));
+        });
   }
 
   /**
@@ -119,21 +139,28 @@ const Home = (props: any) => {
    */
   function handleSubDelete(id: number, type: string) {
     const table: string = type === 'rem' ? 'removal' : 'adding';
-    fetch(`http://127.0.0.1:3001/${table}/${id}`, {
-      method: 'DELETE'
+    fetch(`${API_URL}/${table}/${id}`, {
+      method: 'DELETE',
+      headers: {'Authorization': `Bearer ${jwt}`},
     }).then((resp: any) => resp.json())
-      .then((res: any) => {
+        .then((res: any) => {
         type === 'rem' ?
-          setRemoval(removal.filter((obj: any) => {return obj.id !== id})) :
-          setAdding(adding.filter((obj: any) => {return obj.id !== id}));
-      })
+          setRemoval(removal.filter((obj: any) => {
+            return obj.id !== id;
+          })) :
+          setAdding(adding.filter((obj: any) => {
+            return obj.id !== id;
+          }));
+        });
   }
 
   /**
    * the sub row for each client
    */
   function expandedRowRender(record: any) {
-    const datas: any = getInfos(record.id).sort((a: any, b: any) => {return Date.parse(b.date)-Date.parse(a.date);});
+    const datas: any = getInfos(record.id).sort((a: any, b: any) => {
+      return Date.parse(b.date)-Date.parse(a.date);
+    });
     return (
       <div>
         <div className='btn-group'>
@@ -141,33 +168,33 @@ const Home = (props: any) => {
         </div>
         <Table dataSource={datas} pagination={false} rowKey='key'>
           <Column title="Date" key="date"
-                  render={ record => (
-                    <span style={record.type === 'rem' ? {color: 'red'} : {color: 'green'}}>
-                      {record.date.replace(/(T)|(\.000Z)/g, ' ')}
-                    </span>
-                  )}/>
+            render={ (record) => (
+              <span style={record.type === 'rem' ? {color: 'red'} : {color: 'green'}}>
+                {record.date.replace(/(T)|(\.000Z)/g, ' ')}
+              </span>
+            )}/>
           <Column title="Nb. heures" key="temps" dataIndex="sum"/>
-          <Column title="Type" key="type" render={record => (
+          <Column title="Type" key="type" render={(record) => (
             record.type === 'rem' ? <Icon type="caret-down" style={{color: 'red'}}/> : <Icon type="caret-up" style={{color: 'green'}}/>
           )}/>
           <Column title="" key="deleteRow"
-                  render={record => (
-                    <Popconfirm title="Voulez vous vraiment supprimer cette ligne ?" onConfirm={() => handleSubDelete(record.id, record.type)}>
-                      <Tooltip placement="right" title="Supprimer">
-                        <Icon type="delete"/>
-                      </Tooltip>
-                    </Popconfirm>
-                  )}/>
+            render={(record) => (
+              <Popconfirm title="Voulez vous vraiment supprimer cette ligne ?" onConfirm={() => handleSubDelete(record.id, record.type)}>
+                <Tooltip placement="right" title="Supprimer">
+                  <Icon type="delete"/>
+                </Tooltip>
+              </Popconfirm>
+            )}/>
           <Column title="" key="editRow"
-                  render={record => (
-                    <Link href='/edit/line/:id' as={`/edit/line/${record.key}`}>
-                      <a>
-                        <Tooltip placement="right" title="Modifier">
-                          <Icon type="edit" />
-                        </Tooltip>
-                      </a>
-                    </Link>
-                  )}/>
+            render={(record) => (
+              <Link href='/edit/line/:id' as={`/edit/line/${record.key}`}>
+                <a>
+                  <Tooltip placement="right" title="Modifier">
+                    <Icon type="edit" />
+                  </Tooltip>
+                </a>
+              </Link>
+            )}/>
         </Table>
       </div>
     );
@@ -186,29 +213,29 @@ const Home = (props: any) => {
           </div>
         </Col>
         <Col span={24}>
-          <Table dataSource={customers} rowKey="id" expandedRowRender={(record: any) => expandedRowRender(record)} rowClassName={() => "editable-row"}>
+          <Table dataSource={customers} rowKey="id" expandedRowRender={(record: any) => expandedRowRender(record)} rowClassName={() => 'editable-row'}>
             <Column title="Id" dataIndex="id" key="id"
-                    render={id => (
-                      <span>
-                        <Tag color="blue" key={id}>
-                          {id}
-                        </Tag>
-                      </span>
-                    )} />
+              render={(id) => (
+                <span>
+                  <Tag color="blue" key={id}>
+                    {id}
+                  </Tag>
+                </span>
+              )} />
             <Column title="Nom" key="action"
-                    render={record => (
-                      <Link href='/edit/customer/:id' as={`/edit/customer/${record.id}`}>
-                        <a>
-                          <Tooltip placement="right" title="Modifier">
-                            {record.name}
-                          </Tooltip>
-                        </a>
-                      </Link>
-                    )}/>
+              render={(record) => (
+                <Link href='/edit/customer/:id' as={`/edit/customer/${record.id}`}>
+                  <a>
+                    <Tooltip placement="right" title="Modifier">
+                      {record.name}
+                    </Tooltip>
+                  </a>
+                </Link>
+              )}/>
             <Column title="Description" key="description"
-                    render={record => (
-                      <span>
-                        {!!record.description ?
+              render={(record) => (
+                <span>
+                  {!!record.description ?
                           record.description :
                           <Link href='/edit/customer/:id' as={`/edit/customer/${record.id}`}>
                             <a>
@@ -217,62 +244,85 @@ const Home = (props: any) => {
                               </Tooltip>
                             </a>
                           </Link>}
-                      </span>
-                    )} />
+                </span>
+              )} />
             <Column title="Heure vendue" key="adding"
-                    render={record => (
-                      getAdd(record.id)
-                    )}/>
+              render={(record) => (
+                getAdd(record.id)
+              )}/>
             <Column title="Heure utilisée" key="remove"
-                    render={record => (
-                      getRemove(record.id)
-                    )}/>
+              render={(record) => (
+                getRemove(record.id)
+              )}/>
             <Column title="Heure restante" key="rest"
-                    render={record => (
+              render={(record) => (
                       getRest(record.id) >= 0 ? <Badge status="success" text={getRest(record.id)}/> : <Badge status="error" text={getRest(record.id)}/>
-                    )}/>
+              )}/>
             <Column title="" key="deleteRow"
-                    render={record => (
-                      <Popconfirm title="Voulez vous vraiment supprimer cette ligne ?" onConfirm={() => handleDelete(record.id)}>
-                        <Tooltip placement="right" title="Supprimer">
-                          <Icon type="delete"/>
-                        </Tooltip>
-                      </Popconfirm>
-                    )}/>
+              render={(record) => (
+                <Popconfirm title="Voulez vous vraiment supprimer cette ligne ?" onConfirm={() => handleDelete(record.id)}>
+                  <Tooltip placement="right" title="Supprimer">
+                    <Icon type="delete"/>
+                  </Tooltip>
+                </Popconfirm>
+              )}/>
           </Table>
         </Col>
       </Row>
     </section>
-  )
+  );
 };
 
-Home.getInitialProps = async function() {
+Home.getInitialProps = async function(context: any) {
+  const {jwt} = nextCookie(context);
+  const options = {headers: {'Authorization': `Bearer ${jwt}`}};
+
   const data: any = {};
-  await fetch('http://127.0.0.1:3001/customers')
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      data['customers'] = res;
-    });
-  await fetch('http://127.0.0.1:3001/adding')
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      data['adding'] = res;
-    });
-  await fetch('http://127.0.0.1:3001/removal')
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      data['removal'] = res;
-    });
-  await fetch('http://127.0.0.1:3001/adding/month')
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      data['aMonth'] = res;
-    });
-  await fetch('http://127.0.0.1:3001/removal/month')
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      data['rMonth'] = res;
-    });
+  await fetch(`${API_URL}/customers`, options)
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        if (res.statusCode === 200) {
+          data['customers'] = res;
+        } else {
+          data['customers'] = [];
+        }
+      });
+  await fetch(`${API_URL}/adding`, options)
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        if (res.statusCode === 201) {
+          data['adding'] = res;
+        } else {
+          data['adding'] = [];
+        }
+      });
+  await fetch(`${API_URL}/removal`, options)
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        if (res.statusCode === 201) {
+          data['removal'] = res;
+        } else {
+          data['removal'] = [];
+        }
+      });
+  await fetch(`${API_URL}/adding/month`, options)
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        if (res.statusCode === 201) {
+          data['aMonth'] = res;
+        } else {
+          data['aMonth'] = [];
+        }
+      });
+  await fetch(`${API_URL}/removal/month`, options)
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        if (res.statusCode === 201) {
+          data['rMonth'] = res;
+        } else {
+          data['rMonth'] = [];
+        }
+      });
   return data;
 };
 

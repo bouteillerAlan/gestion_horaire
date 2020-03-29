@@ -26,6 +26,7 @@
   ],
   "rules": {
     // custom rules
-    "padded-blocks": "off"
+    "padded-blocks": "off",
+    "max-len": "off"
   }
 }

@@ -1,8 +1,13 @@
-import {Body, Param, Controller, Delete, Get, Post, Put} from '@nestjs/common';
+import {Body, Param, Controller, Delete, Get, Post, Put, UseGuards} from '@nestjs/common';
 import {AddingService} from './adding.service';
 import {AddingDto} from './adding.dto';
 import {AddingEditDto} from './adding.edit.dto';
+import {AuthGuard} from '@nestjs/passport';
+import {RolesGuard} from '../security/roles.guard';
+import {Roles} from '../security/roles.decorator';
 
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles('User')
 @Controller('adding')
 export class AddingController {
   constructor(private readonly addingService: AddingService) {}
