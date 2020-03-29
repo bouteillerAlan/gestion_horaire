@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import '../../../style/scss/app.scss';
 import fetch from 'isomorphic-unfetch';
-import {Button, Input, Row, Col, Avatar, Badge, Icon, Alert, Progress, DatePicker } from 'antd';
+import {Button, Input, Row, Col, Avatar, Badge, Icon, Alert, Progress, DatePicker} from 'antd';
 import '../../../theme/index.less';
 import Router from 'next/router';
 
@@ -9,7 +9,7 @@ const API_URL = 'http://127.0.0.1:3001';
 
 interface loadInt {
   status: boolean;
-  type: "active" | "success" | "exception" | "normal" | undefined;
+  type: 'active' | 'success' | 'exception' | 'normal' | undefined;
 }
 
 const Home = (props: any) => {
@@ -24,7 +24,7 @@ const Home = (props: any) => {
   function handleSum(e: any) {
     const target = e.target;
     setError('');
-    setSum(target.value)
+    setSum(target.value);
   }
 
   function handleDate(date: any, dateString: any) {
@@ -33,13 +33,13 @@ const Home = (props: any) => {
 
   function sendData() {
     if (!date && !sum) {
-      setError('Vous n\'avez apporté aucune modification')
+      setError('Vous n\'avez apporté aucune modification');
     } else {
       setLoading({status: true, type: 'active'});
       fetch(`${API_URL}/${type}/${line.id}`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({date, sum})
+        body: JSON.stringify({date, sum}),
       }).then((res: any) => {
         console.log(res);
         if (res.status === 200) {
@@ -80,17 +80,17 @@ const Home = (props: any) => {
         </Col>
       </Row>
     </section>
-  )
+  );
 };
 
 Home.getInitialProps = async function(context: any) {
   const table = context.query.id.slice(0, 1) === 'a' ? 'adding' : 'removal';
   const id = context.query.id.slice(1);
   return fetch(`${API_URL}/${table}/${id}`)
-    .then((resp: any) => resp.json())
-    .then((res: any) => {
-      return {type: table, row: res};
-    })
+      .then((resp: any) => resp.json())
+      .then((res: any) => {
+        return {type: table, row: res};
+      });
 };
 
 export default Home;
