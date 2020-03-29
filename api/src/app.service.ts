@@ -2,7 +2,7 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {AppLogInDto} from './app.dto';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
-import {Users} from './users.entity';
+import {Users} from './users/users.entity';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
