@@ -44,12 +44,14 @@ const Login = () => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({...formData}),
     }).then((res: any) => {
-      if (res.status === 200) {
-        setLoading({status: true, type: 'success'});
-      } else {
-        setLoading({status: true, type: 'exception'});
-        setError(res.statusText);
-      }
+      res.json().then((resJson: any) => {
+        if (res.status === 200) {
+          setLoading({status: true, type: 'success'});
+        } else {
+          setLoading({status: true, type: 'exception'});
+          setError(resJson.message);
+        }
+      });
     });
   }
 

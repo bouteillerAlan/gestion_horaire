@@ -1,6 +1,9 @@
-import {Body, Controller, Get, Post} from '@nestjs/common';
+import {Body, Controller, Get, Post, UseGuards} from '@nestjs/common';
 import { AppService } from './app.service';
-import {AppDto} from './app.dto';
+import {AppLogInDto} from './app.dto';
+import {AuthGuard} from '@nestjs/passport';
+import {RolesGuard} from './security/roles.guard';
+import {Roles} from './security/roles.decorator';
 
 @Controller()
 export class AppController {
@@ -10,7 +13,9 @@ export class AppController {
    * hello endpoint just for test
    * @Return {string} a quote
    */
-  @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('User')
+  @Get('hello')
   getHello(): string {
     return this.appService.getHello();
   }
@@ -21,7 +26,7 @@ export class AppController {
    * @Return {any} the jwt or error
    */
   @Post('login')
-  logIn(@Body() body: AppDto): any {
+  logIn(@Body() body: AppLogInDto): Promise<any> {
     return this.appService.logIn(body);
   }
 }
